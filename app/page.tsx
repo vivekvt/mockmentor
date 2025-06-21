@@ -1,3 +1,4 @@
+import { Footer } from '@/components/footer';
 import { HeroSection } from '@/components/hero-section';
 import { Mentors } from '@/components/mentors';
 import Navbar from '@/components/navbar';
@@ -28,6 +29,7 @@ export default function Home() {
         }}
       />
       <Mentors />
+      <Footer />
     </div>
   );
 }

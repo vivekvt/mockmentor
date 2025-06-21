@@ -34,7 +34,7 @@ const MentorCard = ({ image, name }: { image: string; name: string }) => {
   return (
     <figure
       className={cn(
-        'relative h-full w-100 cursor-pointer overflow-hidden rounded-xl border',
+        'relative h-full w-67 lg:w-100 cursor-pointer overflow-hidden rounded-xl border',
         // light styles
         'border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]',
         // dark styles
@@ -54,19 +54,17 @@ const MentorCard = ({ image, name }: { image: string; name: string }) => {
 export function Mentors() {
   return (
     <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
-      <h2 className="mb-4 text-2xl tracking-tighter font-geist bg-clip-text text-transparent mx-auto md:text-6xl bg-[linear-gradient(180deg,_#000_0%,_rgba(0,_0,_0,_0.75)_100%)] dark:bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)]">
+      <h2 className=" text-2xl tracking-tighter font-geist bg-clip-text text-transparent mx-auto md:text-6xl bg-[linear-gradient(180deg,_#000_0%,_rgba(0,_0,_0,_0.75)_100%)] dark:bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)]">
         Our Mentors
       </h2>
+      <p className="my-4 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+        Our AI mentors are here to help you with your interview preparation
+      </p>
       <Marquee pauseOnHover className="[--duration:30s]">
         {mentors.map((mentor) => (
           <MentorCard key={mentor.id} {...mentor} />
         ))}
       </Marquee>
-      {/* <Marquee reverse pauseOnHover className="[--duration:20s]">
-        {mentors.map((mentor) => (
-          <MentorCard key={mentor.id} {...mentor} />
-        ))}
-      </Marquee> */}
       <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background"></div>
       <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background"></div>
     </div>
