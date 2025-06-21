@@ -43,6 +43,7 @@ export default function NewInterviewPage() {
 
   const fetchUserProfile = async () => {
     try {
+      setLoading(true);
       const response = await fetch('/api/user-profile');
       const data = await response.json();
 
@@ -55,6 +56,8 @@ export default function NewInterviewPage() {
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -218,6 +221,14 @@ export default function NewInterviewPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-4">
       <Navbar />
@@ -369,14 +380,14 @@ export default function NewInterviewPage() {
                 </div>
               )}
 
-              {resumeSummary && (
+              {/* {resumeSummary && (
                 <div className="bg-muted p-4 rounded-lg">
                   <h3 className="font-medium mb-2">Resume Summary:</h3>
                   <p className="text-sm text-muted-foreground">
                     {resumeSummary}
                   </p>
                 </div>
-              )}
+              )} */}
             </div>
           )}
 
@@ -468,7 +479,7 @@ export default function NewInterviewPage() {
 
           {/* Navigation Buttons */}
           {currentStep < 3 && (
-            <div className="flex justify-between pt-6 border-t">
+            <div className="flex justify-between">
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
