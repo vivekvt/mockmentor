@@ -51,10 +51,10 @@ async function fetchAccessToken() {
 
 const DEFAULT_CONFIG: StartAvatarRequest = {
   quality: AvatarQuality.High,
-  avatarName: 'Ann_Therapist_public',
+  avatarName: 'Judy_Teacher_Sitting_public',
   knowledgeId: undefined,
   voice: {
-    rate: 1.5,
+    rate: 2,
     emotion: VoiceEmotion.EXCITED,
     model: ElevenLabsModel.eleven_flash_v2_5,
   },
@@ -63,6 +63,7 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
   sttSettings: {
     provider: STTProvider.DEEPGRAM,
   },
+  // knowledgeBase: '',
 };
 
 const Interview = () => {
@@ -134,6 +135,10 @@ const Interview = () => {
       videoRef.current.srcObject = null;
     }
   }, [isCameraOn, isMicOn]);
+
+  useEffect(() => {
+    console.log('Session state changed:');
+  }, []);
 
   const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {
     try {
@@ -434,14 +439,14 @@ const Interview = () => {
         >
           {isMicOn ? <Mic /> : <MicOff />}
         </Button>
-        <Button
+        {/* <Button
           variant={isChatOpen ? 'default' : 'secondary'}
           size="icon"
           onClick={() => setIsChatOpen(!isChatOpen)}
           className="rounded-full"
         >
           <MessageSquare />
-        </Button>
+        </Button> */}
         <Button
           size="icon"
           variant="destructive"

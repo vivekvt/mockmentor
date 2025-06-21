@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { appConfig } from '@/lib/appConfig';
 import { ThemeToggle } from './theme-provider';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function Navbar() {
   return (
@@ -18,6 +19,12 @@ export default function Navbar() {
           <div className="w-full flex-1 md:w-auto md:flex-none"></div>
           <nav className="flex items-center">
             <ThemeToggle />
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </nav>
         </div>
       </div>
