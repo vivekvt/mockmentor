@@ -1,12 +1,8 @@
 import { cn } from '@/lib/utils';
 import { Marquee } from '@/components/magicui/marquee';
+import SectionHeading from './ui/section-heading';
 
-const mentors = [
-  {
-    id: ' Bryan_IT_Sitting_public',
-    image: ' /mentors/Bryan_IT_Sitting_public.webp',
-    name: 'Bryan',
-  },
+export const mentors = [
   {
     id: 'Elenora_IT_Sitting_public',
     image: '/mentors/Elenora_IT_Sitting_public.webp',
@@ -22,6 +18,11 @@ const mentors = [
     id: 'SilasHR_public',
     image: '/mentors/SilasHR_public.webp',
     name: 'Silas',
+  },
+  {
+    id: ' Bryan_IT_Sitting_public',
+    image: ' /mentors/Bryan_IT_Sitting_public.webp',
+    name: 'Bryan',
   },
   {
     id: 'Wayne_20240711',
@@ -54,12 +55,10 @@ const MentorCard = ({ image, name }: { image: string; name: string }) => {
 export function Mentors() {
   return (
     <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
-      <h2 className=" text-2xl tracking-tighter font-geist bg-clip-text text-transparent mx-auto md:text-6xl bg-[linear-gradient(180deg,_#000_0%,_rgba(0,_0,_0,_0.75)_100%)] dark:bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)]">
-        Our Mentors
-      </h2>
-      <p className="my-4 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
-        Our AI mentors are here to help you with your interview preparation
-      </p>
+      <SectionHeading
+        title="Our Mentors"
+        subtitle="AI mentors are here to help you with your interview preparation"
+      />
       <Marquee pauseOnHover className="[--duration:30s]">
         {mentors.map((mentor) => (
           <MentorCard key={mentor.id} {...mentor} />

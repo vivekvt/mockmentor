@@ -1,3 +1,4 @@
+import { FeaturesSection } from '@/components/features-section';
 import { Footer } from '@/components/footer';
 import { HeroSection } from '@/components/hero-section';
 import { Mentors } from '@/components/mentors';
@@ -18,7 +19,7 @@ export default function Home() {
           gradient: 'Mock Interview',
         }}
         description="Practice real-world interviews with instant feedback anytime, anywhere"
-        ctaText="Get Started"
+        ctaText="Start Interview"
         ctaHref="/interview/new"
         gridOptions={{
           angle: 65,
@@ -28,6 +29,7 @@ export default function Home() {
           darkLineColor: '#2a2a2a',
         }}
       />
+      <FeaturesSection />
       <Mentors />
       <Footer />
     </div>

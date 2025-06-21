@@ -17,46 +17,18 @@ import { storage, BUCKET_ID } from '@/lib/appwrite';
 import { ID } from 'appwrite';
 import Navbar from '@/components/navbar';
 import { cn } from '@/lib/utils';
+import { mentors } from '@/components/mentors';
 
 interface UserProfile {
   resumeUrl?: string;
   resumeSummary?: string;
 }
 
-const mentors = [
-  {
-    id: 'Bryan_IT_Sitting_public',
-    image: '/mentors/Bryan_IT_Sitting_public.webp',
-    name: 'Bryan',
-  },
-  {
-    id: 'Elenora_IT_Sitting_public',
-    image: '/mentors/Elenora_IT_Sitting_public.webp',
-    name: 'Elenora',
-  },
-  {
-    id: 'Judy_Teacher_Sitting_public',
-    image: '/mentors/Judy_Teacher_Sitting_public.webp',
-    name: 'Judy',
-  },
-  { id: 'June_HR_public', image: '/mentors/June_HR_public.webp', name: 'June' },
-  {
-    id: 'SilasHR_public',
-    image: '/mentors/SilasHR_public.webp',
-    name: 'Silas',
-  },
-  {
-    id: 'Wayne_20240711',
-    image: '/mentors/Wayne_20240711.webp',
-    name: 'Wayne',
-  },
-];
-
 export default function NewInterviewPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   // Step 1: Resume Upload

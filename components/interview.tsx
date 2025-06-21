@@ -35,36 +35,18 @@ import {
   VoiceEmotion,
 } from '@heygen/streaming-avatar';
 import LoadingSkeleton from './loading-skeleton';
-
-// Import mentors array
-const mentors = [
-  {
-    id: 'Bryan_IT_Sitting_public',
-    image: '/mentors/Bryan_IT_Sitting_public.webp',
-    name: 'Bryan',
-  },
-  {
-    id: 'Elenora_IT_Sitting_public',
-    image: '/mentors/Elenora_IT_Sitting_public.webp',
-    name: 'Elenora',
-  },
-  {
-    id: 'Judy_Teacher_Sitting_public',
-    image: '/mentors/Judy_Teacher_Sitting_public.webp',
-    name: 'Judy',
-  },
-  { id: 'June_HR_public', image: '/mentors/June_HR_public.webp', name: 'June' },
-  {
-    id: 'SilasHR_public',
-    image: '/mentors/SilasHR_public.webp',
-    name: 'Silas',
-  },
-  {
-    id: 'Wayne_20240711',
-    image: '/mentors/Wayne_20240711.webp',
-    name: 'Wayne',
-  },
-];
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './ui/alert-dialog';
+import { mentors } from './mentors';
 
 async function fetchAccessToken() {
   try {
@@ -121,6 +103,7 @@ const Interview = ({
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [exitLoading, setExitLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
@@ -310,10 +293,9 @@ const Interview = ({
   };
 
   const exitInterview = async () => {
-    if (window.confirm('Are you sure you want to exit the interview?')) {
-      await stopAvatar();
-      router.push('/');
-    }
+    setExitLoading(true);
+    await stopAvatar();
+    router.push('/');
   };
 
   return (
@@ -518,14 +500,35 @@ const Interview = ({
         >
           <MessageSquare />
         </Button> */}
-        <Button
-          size="icon"
-          variant="destructive"
-          onClick={exitInterview}
-          className="rounded-full"
-        >
-          <Phone />
-        </Button>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon"
+              variant="destructive"
+              // onClick={exitInterview}
+              className="rounded-full"
+            >
+              <Phone />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Are you sure you want to exit the Interview?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction disabled={exitLoading} onClick={exitInterview}>
+                Exit Interview
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

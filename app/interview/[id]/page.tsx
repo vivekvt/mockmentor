@@ -9,6 +9,7 @@ import { StreamingAvatarProvider } from '@/components/logic';
 import Interview from '@/components/interview';
 import LoadingSkeleton from '@/components/loading-skeleton';
 import InterviewComplete from '@/components/interview-complete';
+import Link from 'next/link';
 
 interface Interview {
   _id: string;
@@ -170,7 +171,7 @@ export default function InterviewPage() {
           <h2 className="text-xl font-semibold mb-2">Error</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <Button onClick={fetchInterview} variant="outline">
-            Try Again
+            <Link href="/interview/new">Start New Interview</Link>
           </Button>
         </Card>
       </div>
