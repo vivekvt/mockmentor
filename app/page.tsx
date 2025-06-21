@@ -1,4 +1,5 @@
 import { HeroSection } from '@/components/hero-section';
+import { Mentors } from '@/components/mentors';
 import Navbar from '@/components/navbar';
 import { appConfig } from '@/lib/appConfig';
 
@@ -26,6 +27,7 @@ export default function Home() {
           darkLineColor: '#2a2a2a',
         }}
       />
+      <Mentors />
     </div>
   );
 }
