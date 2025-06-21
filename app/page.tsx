@@ -5,7 +5,9 @@ import { appConfig } from '@/lib/appConfig';
 export default function Home() {
   return (
     <div className="relative">
-      <Navbar />
+      <div className="bg-transparent h-10 absolute top-0 left-0 w-full z-50">
+        <Navbar />
+      </div>
       <HeroSection
         className="h-screen flex items-center justify-center"
         title={`Welcome to ${appConfig?.title}`}
@@ -15,7 +17,7 @@ export default function Home() {
         }}
         description="Practice real-world interviews with instant feedback anytime, anywhere"
         ctaText="Get Started"
-        ctaHref="/interview"
+        ctaHref="/interview/new"
         gridOptions={{
           angle: 65,
           opacity: 0.4,

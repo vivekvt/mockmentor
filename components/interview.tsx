@@ -34,6 +34,7 @@ import {
   VoiceChatTransport,
   VoiceEmotion,
 } from '@heygen/streaming-avatar';
+import LoadingSkeleton from './loading-skeleton';
 
 async function fetchAccessToken() {
   try {
@@ -66,18 +67,28 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
   // knowledgeBase: '',
 };
 
-const Interview = () => {
+const Interview = ({
+  knowledgeBase,
+  role,
+}: {
+  knowledgeBase: string;
+  role: string;
+}) => {
   const { initAvatar, startAvatar, stopAvatar, sessionState, stream } =
     useStreamingAvatarSession();
   const { startVoiceChat } = useVoiceChat();
 
-  const [config] = useState<StartAvatarRequest>(DEFAULT_CONFIG);
+  const [config] = useState<StartAvatarRequest>({
+    ...DEFAULT_CONFIG,
+    knowledgeBase,
+  });
 
   const mediaStream = useRef<HTMLVideoElement>(null);
 
   const router = useRouter();
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
@@ -96,7 +107,7 @@ const Interview = () => {
   ]);
 
   // Timer state
-  const [startTime] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
   const [elapsedTime, setElapsedTime] = useState(0);
 
   const videoRef = useRef<any>(null);
@@ -138,6 +149,7 @@ const Interview = () => {
 
   useEffect(() => {
     console.log('Session state changed:');
+    startSessionV2(true);
   }, []);
 
   const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {
@@ -156,6 +168,8 @@ const Interview = () => {
       });
       avatar.on(StreamingEvents.STREAM_READY, (event) => {
         console.log('>>>>> Stream ready:', event.detail);
+        setLoading(false);
+        setStartTime(new Date());
       });
       avatar.on(StreamingEvents.USER_START, (event) => {
         console.log('>>>>> User started talking:', event);
@@ -259,22 +273,32 @@ const Interview = () => {
     }
   };
 
+  // if (loading) {
+  //   return <LoadingSkeleton />;
+  // }
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col px-4">
-      {/* Header */}
+      {loading && <LoadingSkeleton />}
       <div className="flex flex-row items-center gap-2 py-4">
+        <div className="relative">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="absolute top-0 left-0 w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
+          <div className="absolute top-0 left-0 w-2 h-2 bg-green-500 rounded-full shadow-lg shadow-green-500/50"></div>
+        </div>
         <h1 className="text-md font-semibold overflow-hidden whitespace-nowrap text-ellipsis">
-          Senior Software Engineer Interview
+          {role || ''} Interview{' '}
         </h1>
-        <Badge
-          variant="secondary"
-          className="flex items-center space-x-1 shrink-0"
-        >
-          <Clock className="w-3 h-3" />
-          <span>{formatTime(elapsedTime)}</span>
-        </Badge>
+        {!loading && (
+          <Badge
+            variant="secondary"
+            className="flex items-center space-x-1 shrink-0"
+          >
+            <Clock className="w-3 h-3" />
+            <span>{formatTime(elapsedTime)}</span>
+          </Badge>
+        )}
       </div>
-
       {/* Main Content */}
       <div className="flex flex-1 max-w-7xl mx-auto">
         {/* Video Section */}
@@ -416,13 +440,13 @@ const Interview = () => {
       </div>
       {/* Controls */}
       <div className="py-4 flex justify-center space-x-4">
-        <Button
+        {/* <Button
           onClick={() => {
             startSessionV2(true);
           }}
         >
           Start
-        </Button>
+        </Button> */}
         <Button
           variant={isCameraOn ? 'default' : 'secondary'}
           size="icon"
