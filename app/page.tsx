@@ -1,3 +1,4 @@
+import { DemosSection } from '@/components/demos-section';
 import { FeaturesSection } from '@/components/features-section';
 import { Footer } from '@/components/footer';
 import { HeroSection } from '@/components/hero-section';
@@ -29,8 +30,9 @@ export default function Home() {
           darkLineColor: '#2a2a2a',
         }}
       />
-      <FeaturesSection />
       <Mentors />
+      <FeaturesSection />
+      <DemosSection />
       <Footer />
     </div>
   );

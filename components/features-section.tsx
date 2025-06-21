@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Brain, MessageCircle, Users, Target } from 'lucide-react';
-import SectionHeading from './ui/section-heading';
+import SectionHeading from './section-heading';
 
 interface FeaturesSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
@@ -90,7 +90,11 @@ const FeaturesSection = React.forwardRef<HTMLDivElement, FeaturesSectionProps>(
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <SectionHeading title={title} subtitle={subtitle} />
+          <SectionHeading
+            title={title}
+            subtitle={subtitle}
+            className="pt-16 pb-10"
+          />
 
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12">

@@ -2,36 +2,38 @@ import { cn } from '@/lib/utils';
 import { Marquee } from '@/components/magicui/marquee';
 import SectionHeading from './section-heading';
 
-export const mentors = [
+export const demos = [
   {
-    id: 'Elenora_IT_Sitting_public',
-    image: '/mentors/Elenora_IT_Sitting_public.webp',
-    name: 'Elenora',
+    image: '/demos/aditya.png',
+    name: 'Aditya',
   },
   {
-    id: 'Judy_Teacher_Sitting_public',
-    image: '/mentors/Judy_Teacher_Sitting_public.webp',
-    name: 'Judy',
-  },
-  { id: 'June_HR_public', image: '/mentors/June_HR_public.webp', name: 'June' },
-  {
-    id: 'SilasHR_public',
-    image: '/mentors/SilasHR_public.webp',
-    name: 'Silas',
+    image: '/demos/Dinojan.png',
+    name: 'Dinojan',
   },
   {
-    id: ' Bryan_IT_Sitting_public',
-    image: ' /mentors/Bryan_IT_Sitting_public.webp',
-    name: 'Bryan',
+    image: '/demos/jonathan.png',
+    name: 'Jonathan',
   },
   {
-    id: 'Wayne_20240711',
-    image: '/mentors/Wayne_20240711.webp',
-    name: 'Wayne',
+    image: '/demos/nehtteen.png',
+    name: 'Nehtteen',
+  },
+  {
+    image: '/demos/arjun.png',
+    name: 'Arjun',
+  },
+  {
+    image: '/demos/sai.png',
+    name: 'Sai',
+  },
+  {
+    image: '/demos/vivek.png',
+    name: 'Vivek',
   },
 ];
 
-const MentorCard = ({ image, name }: { image: string; name: string }) => {
+const DemoCard = ({ image, name }: { image: string; name: string }) => {
   return (
     <figure
       className={cn(
@@ -52,16 +54,17 @@ const MentorCard = ({ image, name }: { image: string; name: string }) => {
   );
 };
 
-export function Mentors() {
+export function DemosSection() {
   return (
     <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
       <SectionHeading
-        title="Our Mentors"
-        subtitle="AI mentors are here to help you with your interview preparation"
+        title="Demos"
+        subtitle="Demos of the interviews"
+        className="pt-16 pb-6"
       />
       <Marquee pauseOnHover className="[--duration:30s]">
-        {mentors.map((mentor) => (
-          <MentorCard key={mentor.id} {...mentor} />
+        {demos.map((demo) => (
+          <DemoCard key={demo.name} {...demo} />
         ))}
       </Marquee>
       <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background"></div>
