@@ -150,6 +150,7 @@ const Interview = ({
   useEffect(() => {
     console.log('Session state changed:');
     startSessionV2(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {

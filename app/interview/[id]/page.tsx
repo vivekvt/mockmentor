@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -31,16 +31,55 @@ export default function InterviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Start interview
+  const startInterview = useCallback(
+    async (interviewData: Interview) => {
+      if (interviewData.status !== 'scheduled') return interviewData;
+
+      try {
+        const response = await fetch(`/api/interview/${interviewId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'in-progress',
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          return data.interview;
+        } else {
+          console.error('Failed to start interview:', data.error);
+          return interviewData;
+        }
+      } catch (error) {
+        console.error('Error starting interview:', error);
+        return interviewData;
+      }
+    },
+    [interviewId]
+  );
+
   // Fetch interview data
-  const fetchInterview = async () => {
+  const fetchInterview = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/interview/${interviewId}`);
       const data = await response.json();
 
       if (data.success) {
-        await startInterview();
-        setInterview(data.interview);
+        // First set the interview data, then conditionally start it
+        let interviewData = data.interview;
+
+        // Auto-start if scheduled
+        if (interviewData.status === 'scheduled') {
+          interviewData = await startInterview(interviewData);
+        }
+
+        setInterview(interviewData);
         setError(null);
       } else {
         setError(data.error || 'Failed to fetch interview');
@@ -51,39 +90,10 @@ export default function InterviewPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Start interview
-  const startInterview = async () => {
-    if (!interview || interview.status !== 'scheduled') return;
-
-    try {
-      const response = await fetch(`/api/interview/${interviewId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'in-progress',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setInterview(data.interview);
-        setError(null);
-      } else {
-        setError(data.error || 'Failed to start interview');
-      }
-    } catch (error) {
-      console.error('Error starting interview:', error);
-      setError('Failed to start interview');
-    }
-  };
+  }, [interviewId, startInterview]);
 
   // Auto-complete interview after 5 minutes
-  const completeInterview = async () => {
+  const completeInterview = useCallback(async () => {
     if (!interview || interview.status !== 'in-progress') return;
 
     try {
@@ -101,12 +111,11 @@ export default function InterviewPage() {
 
       if (data.success) {
         setInterview(data.interview);
-        // setTimeRemaining(null);
       }
     } catch (error) {
       console.error('Error completing interview:', error);
     }
-  };
+  }, [interview, interviewId]);
 
   // Calculate time remaining for in-progress interviews
   useEffect(() => {
@@ -115,7 +124,6 @@ export default function InterviewPage() {
       interview.status !== 'in-progress' ||
       !interview.startDateTime
     ) {
-      // setTimeRemaining(null);
       return;
     }
 
@@ -126,8 +134,6 @@ export default function InterviewPage() {
       const now = Date.now();
       const elapsed = now - startTime;
       const remaining = Math.max(0, fiveMinutes - elapsed);
-
-      // setTimeRemaining(remaining);
 
       // Auto-complete when time is up
       if (remaining === 0) {
@@ -142,14 +148,14 @@ export default function InterviewPage() {
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [interview]);
+  }, [interview, completeInterview]);
 
   // Fetch interview on component mount
   useEffect(() => {
     if (interviewId) {
       fetchInterview();
     }
-  }, [interviewId]);
+  }, [interviewId, fetchInterview]);
 
   if (loading) {
     return <LoadingSkeleton />;
@@ -191,13 +197,13 @@ export default function InterviewPage() {
   return (
     <StreamingAvatarProvider basePath={process.env.NEXT_PUBLIC_BASE_API_URL}>
       <Interview
-        role={interview?.jobTitle}
+        role={interview.jobTitle}
         knowledgeBase={`
-You are an AI-powered interviewer conducting a mock interview for a specific job position. The candidate is described as follows: ${interview?.userSummary}. 
+You are an AI-powered interviewer conducting a mock interview for a specific job position. The candidate is described as follows: ${interview.userSummary}. 
 
-The job role is described as follows: ${interview?.jobSummary}.
+The job role is described as follows: ${interview.jobSummary}.
 
-Your task is to conduct a professional mock interview for this position. Ask 5 relevant, insightful questions to assess the candidate’s technical skills, experience, and fit for the role. Tailor the questions to the candidate’s background and the job’s requirements. Ensure the questions are clear, concise, and encourage detailed responses about their expertise and problem-solving abilities. Maintain a professional and engaging tone throughout the interview.
+Your task is to conduct a professional mock interview for this position. Ask 5 relevant, insightful questions to assess the candidate's technical skills, experience, and fit for the role. Tailor the questions to the candidate's background and the job's requirements. Ensure the questions are clear, concise, and encourage detailed responses about their expertise and problem-solving abilities. Maintain a professional and engaging tone throughout the interview.
 `}
       />
     </StreamingAvatarProvider>
