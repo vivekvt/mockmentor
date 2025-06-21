@@ -64,15 +64,16 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
   sttSettings: {
     provider: STTProvider.DEEPGRAM,
   },
-  // knowledgeBase: '',
 };
 
 const Interview = ({
   knowledgeBase,
   role,
+  mentorId,
 }: {
   knowledgeBase: string;
   role: string;
+  mentorId: string;
 }) => {
   const { initAvatar, startAvatar, stopAvatar, sessionState, stream } =
     useStreamingAvatarSession();
@@ -81,6 +82,7 @@ const Interview = ({
   const [config] = useState<StartAvatarRequest>({
     ...DEFAULT_CONFIG,
     knowledgeBase,
+    avatarName: mentorId || DEFAULT_CONFIG?.avatarName,
   });
 
   const mediaStream = useRef<HTMLVideoElement>(null);
@@ -273,10 +275,6 @@ const Interview = ({
       router.push('/');
     }
   };
-
-  // if (loading) {
-  //   return <LoadingSkeleton />;
-  // }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col px-4">

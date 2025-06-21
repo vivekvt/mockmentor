@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { jobTitle, jobDescription, jobSummary } = await req.json();
+    const { jobTitle, jobDescription, jobSummary, mentorId } = await req.json();
 
     if (!jobTitle || !jobSummary) {
       return NextResponse.json(
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       jobDescription,
       userSummary: userProfile.resumeSummary,
       jobSummary,
+      mentorId,
       status: 'scheduled',
     });
 

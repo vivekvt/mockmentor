@@ -21,6 +21,7 @@ interface Interview {
   startDateTime?: string;
   createdAt: string;
   updatedAt: string;
+  mentorId: string;
 }
 
 export default function InterviewPage() {
@@ -197,15 +198,20 @@ export default function InterviewPage() {
   return (
     <StreamingAvatarProvider basePath={process.env.NEXT_PUBLIC_BASE_API_URL}>
       <Interview
+        mentorId={interview.mentorId}
         role={interview.jobTitle}
-        knowledgeBase={`
-You are an AI-powered interviewer conducting a mock interview for a specific job position. The candidate is described as follows: ${interview.userSummary}. 
-
-The job role is described as follows: ${interview.jobSummary}.
-
-Your task is to conduct a professional mock interview for this position. Ask 5 relevant, insightful questions to assess the candidate's technical skills, experience, and fit for the role. Tailor the questions to the candidate's background and the job's requirements. Ensure the questions are clear, concise, and encourage detailed responses about their expertise and problem-solving abilities. Maintain a professional and engaging tone throughout the interview.
-`}
+        knowledgeBase={getKnowledgeBase(interview)}
       />
     </StreamingAvatarProvider>
   );
 }
+
+const getKnowledgeBase = (interview: Interview) => {
+  return `
+  You are an AI-powered interviewer conducting a mock interview for a specific job position. The candidate is described as follows: ${interview.userSummary}. 
+
+  The job role is described as follows: ${interview.jobSummary}.
+
+  Your task is to conduct a professional mock interview for this position. Ask 5 relevant, insightful questions to assess the candidate's technical skills, experience, and fit for the role. Tailor the questions to the candidate's background and the job's requirements. Ensure the questions are clear, concise, and encourage detailed responses about their expertise and problem-solving abilities. Maintain a professional and engaging tone throughout the interview.
+  `;
+};

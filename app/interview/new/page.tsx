@@ -11,19 +11,52 @@ import {
   Briefcase,
   CheckCircle,
   Loader2,
+  User,
 } from 'lucide-react';
 import { storage, BUCKET_ID } from '@/lib/appwrite';
 import { ID } from 'appwrite';
 import Navbar from '@/components/navbar';
+import { cn } from '@/lib/utils';
+
 interface UserProfile {
   resumeUrl?: string;
   resumeSummary?: string;
 }
 
+const mentors = [
+  {
+    id: 'Bryan_IT_Sitting_public',
+    image: '/mentors/Bryan_IT_Sitting_public.webp',
+    name: 'Bryan',
+  },
+  {
+    id: 'Elenora_IT_Sitting_public',
+    image: '/mentors/Elenora_IT_Sitting_public.webp',
+    name: 'Elenora',
+  },
+  {
+    id: 'Judy_Teacher_Sitting_public',
+    image: '/mentors/Judy_Teacher_Sitting_public.webp',
+    name: 'Judy',
+  },
+  { id: 'June_HR_public', image: '/mentors/June_HR_public.webp', name: 'June' },
+  {
+    id: 'SilasHR_public',
+    image: '/mentors/SilasHR_public.webp',
+    name: 'Silas',
+  },
+  {
+    id: 'Wayne_20240711',
+    image: '/mentors/Wayne_20240711.webp',
+    name: 'Wayne',
+  },
+];
+
 export default function NewInterviewPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   // Step 1: Resume Upload
@@ -36,6 +69,9 @@ export default function NewInterviewPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [jobSummary, setJobSummary] = useState('');
 
+  // Step 3: Mentor Selection
+  const [selectedMentor, setSelectedMentor] = useState<string | null>(null);
+
   // Fetch existing user profile on mount
   useEffect(() => {
     fetchUserProfile();
@@ -43,7 +79,7 @@ export default function NewInterviewPage() {
 
   const fetchUserProfile = async () => {
     try {
-      setLoading(true);
+      setFetchLoading(true);
       const response = await fetch('/api/user-profile');
       const data = await response.json();
 
@@ -57,7 +93,7 @@ export default function NewInterviewPage() {
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
-      setLoading(false);
+      setFetchLoading(false);
     }
   };
 
@@ -168,6 +204,11 @@ export default function NewInterviewPage() {
       return;
     }
 
+    if (!selectedMentor) {
+      alert('Please select a mentor to continue');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -180,6 +221,7 @@ export default function NewInterviewPage() {
           jobTitle,
           jobDescription,
           jobSummary,
+          mentorId: selectedMentor,
         }),
       });
 
@@ -221,7 +263,7 @@ export default function NewInterviewPage() {
     }
   };
 
-  if (loading) {
+  if (fetchLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin" />
@@ -311,8 +353,8 @@ export default function NewInterviewPage() {
           {currentStep === 1 && (
             <div className="space-y-6">
               <div className="text-center">
-                <FileText className="w-12 h-12 mx-auto text-primary mb-4" />
-                <h2 className="text-xl font-semibold mb-2">
+                <h2 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
+                  <FileText className="" />
                   Upload Your Resume
                 </h2>
                 <p className="text-muted-foreground">
@@ -394,8 +436,10 @@ export default function NewInterviewPage() {
           {currentStep === 2 && (
             <div className="space-y-6">
               <div className="text-center">
-                <Briefcase className="w-12 h-12 mx-auto text-primary mb-4" />
-                <h2 className="text-xl font-semibold mb-2">Job Details</h2>
+                <h2 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
+                  <Briefcase />
+                  Job Details
+                </h2>
                 <p className="text-muted-foreground">
                   Provide details about the position you&apos;re interviewing
                   for
@@ -416,7 +460,7 @@ export default function NewInterviewPage() {
 
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Job Description (Optional)
+                    Job Description
                   </label>
                   <textarea
                     className="w-full min-h-[120px] px-3 py-2 border border-input rounded-md bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -437,43 +481,91 @@ export default function NewInterviewPage() {
           )}
 
           {currentStep === 3 && (
-            <div className="space-y-6 text-center">
-              <div>
-                <CheckCircle className="w-16 h-16 mx-auto text-green-600 mb-4" />
-                <h2 className="text-xl font-semibold mb-2">Ready to Start!</h2>
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
+                  <User />
+                  Choose Your Mentor
+                </h2>
                 <p className="text-muted-foreground">
-                  Everything is set up for your mock interview
+                  Select an AI mentor to conduct your interview
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <div className="bg-muted p-4 rounded-lg">
-                  <h3 className="font-medium mb-2">Your Profile:</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {resumeSummary}
-                  </p>
-                </div>
-                <div className="bg-muted p-4 rounded-lg">
-                  <h3 className="font-medium mb-2">Position: {jobTitle}</h3>
-                  <p className="text-sm text-muted-foreground">{jobSummary}</p>
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {mentors.map((mentor) => (
+                  <div
+                    key={mentor.id}
+                    className={cn(
+                      'relative cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md',
+                      selectedMentor === mentor.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-muted hover:border-primary/50'
+                    )}
+                    onClick={() => setSelectedMentor(mentor.id)}
+                  >
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="relative w-full h-32 overflow-hidden rounded-md">
+                        <img
+                          src={mentor.image}
+                          alt={mentor.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <p className="font-medium text-center">{mentor.name}</p>
+                    </div>
+                    {selectedMentor === mentor.id && (
+                      <div className="absolute top-2 right-2">
+                        <CheckCircle className="w-5 h-5 text-primary" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
 
-              <Button
-                onClick={createInterview}
-                disabled={loading}
-                size="lg"
-                className="w-full md:w-auto"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Starting Interview...
-                  </>
-                ) : (
-                  'Start Interview'
-                )}
-              </Button>
+              {selectedMentor && (
+                <div className="text-center">
+                  <CheckCircle className="w-16 h-16 mx-auto text-green-600 mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">
+                    Ready to Start!
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    Everything is set up for your mock interview with{' '}
+                    {mentors.find((m) => m.id === selectedMentor)?.name}
+                  </p>
+
+                  {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-6">
+                    <div className="bg-muted p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">Your Profile:</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {resumeSummary}
+                      </p>
+                    </div>
+                    <div className="bg-muted p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">Position: {jobTitle}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {jobSummary}
+                      </p>
+                    </div>
+                  </div> */}
+
+                  <Button
+                    onClick={createInterview}
+                    disabled={loading}
+                    size="lg"
+                    className="w-full md:w-auto"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Starting Interview...
+                      </>
+                    ) : (
+                      'Start Interview'
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

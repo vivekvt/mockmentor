@@ -6,6 +6,7 @@ export interface IInterview extends mongoose.Document {
   jobDescription?: string;
   userSummary: string;
   jobSummary: string;
+  mentorId?: string;
   status: 'scheduled' | 'in-progress' | 'completed';
   startDateTime?: Date;
   createdAt: Date;
@@ -32,6 +33,9 @@ const InterviewSchema = new mongoose.Schema(
     jobSummary: {
       type: String,
       required: true,
+    },
+    mentorId: {
+      type: String,
     },
     status: {
       type: String,
