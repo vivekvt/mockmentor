@@ -1,0 +1,326 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Camera,
+  CameraOff,
+  Mic,
+  MicOff,
+  MessageSquare,
+  Phone,
+  Clock,
+  X,
+  Send,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useRouter } from 'next/navigation';
+import { Input } from './ui/input';
+
+const Interview = () => {
+  const router = useRouter();
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isMicOn, setIsMicOn] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: 'interviewer',
+      text: "Hello! Welcome to your mock interview. I'm excited to speak with you today.",
+      timestamp: new Date(Date.now() - 300000),
+    },
+    {
+      id: 2,
+      sender: 'user',
+      text: "Thank you! I'm ready to begin.",
+      timestamp: new Date(Date.now() - 240000),
+    },
+  ]);
+
+  // Timer state
+  const [startTime] = useState(new Date());
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  const videoRef = useRef<any>(null);
+  const chatScrollRef = useRef<any>(null);
+
+  // Timer effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsedTime(
+        Math.floor((new Date().getTime() - startTime.getTime()) / 1000)
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [startTime]);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Get user media
+  useEffect(() => {
+    if (isCameraOn && videoRef.current) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: isMicOn })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+        })
+        .catch((err) => console.log('Error accessing media devices:', err));
+    } else if (!isCameraOn && videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach((track: any) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  }, [isCameraOn, isMicOn]);
+
+  const formatTime = (seconds: any) => {
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
+  };
+
+  const sendMessage = () => {
+    if (message.trim()) {
+      const newMessage = {
+        id: messages.length + 1,
+        sender: 'user',
+        text: message,
+        timestamp: new Date(),
+      };
+      setMessages([...messages, newMessage]);
+      setMessage('');
+
+      // Simulate interviewer response
+      setTimeout(() => {
+        const responses = [
+          "That's a great point. Can you elaborate on that?",
+          'Interesting perspective. How would you handle a challenging situation?',
+          'Thank you for sharing. What would you say is your greatest strength?',
+          'I appreciate your honesty. Can you give me a specific example?',
+          "That's valuable experience. How do you see yourself growing in this role?",
+        ];
+        const randomResponse =
+          responses[Math.floor(Math.random() * responses.length)];
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            id: prevMessages.length + 1,
+            sender: 'interviewer',
+            text: randomResponse,
+            timestamp: new Date(),
+          },
+        ]);
+      }, 1500);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const exitInterview = () => {
+    if (window.confirm('Are you sure you want to exit the interview?')) {
+      router.push('/');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col px-4">
+      {/* Header */}
+      <div className="flex flex-row items-center gap-2 py-4">
+        <h1 className="text-md font-semibold overflow-hidden whitespace-nowrap text-ellipsis">
+          Senior Software Engineer Interview
+        </h1>
+        <Badge
+          variant="secondary"
+          className="flex items-center space-x-1 shrink-0"
+        >
+          <Clock className="w-3 h-3" />
+          <span>{formatTime(elapsedTime)}</span>
+        </Badge>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-1 max-w-7xl mx-auto">
+        {/* Video Section */}
+        <div
+          className={`flex-1 p- transition-all duration-300 ${
+            isChatOpen ? 'lg:pr-2' : ''
+          }`}
+        >
+          <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4 no-h-[calc(100vh-140px)]">
+            {/* Interviewer Video */}
+            <div className="relative overflow-hidden rounded-lg border">
+              <div className="bg-muted h-full flex items-center justify-center relative">
+                <div className="text-center">
+                  <Avatar className="w-16 h-16 mx-auto mb-4">
+                    <AvatarFallback className="text-lg">AI</AvatarFallback>
+                  </Avatar>
+                  <p className="text-muted-foreground">AI Interviewer</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Camera will be active soon
+                  </p>
+                </div>
+
+                {/* Interviewer Controls Overlay */}
+                <div className="absolute bottom-4 left-4">
+                  <Badge variant="secondary">AI Interviewer</Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* User Video */}
+            <div className="relative overflow-hidden rounded-lg border">
+              <div className="relative h-full bg-muted">
+                {isCameraOn ? (
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <CameraOff className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground">Camera is off</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Chat Panel */}
+        <div
+          className={`flex flex-col pl-2 transition-all duration-300 ${
+            isChatOpen ? 'w-full lg:w-96 bg-muted lg:bg-background' : 'w-0'
+          } ${
+            isChatOpen
+              ? 'fixed lg:relative inset-0 lg:inset-auto z-50 lg:z-auto'
+              : 'hidden'
+          }`}
+        >
+          <div className="bg-muted/30 h-full flex flex-col rounded-none lg:rounded-lg lg:border">
+            <div className="flex items-center justify-between py-2 px-3 border-b">
+              <div className="text-lg flex items-center space-x-2">
+                <MessageSquare className="w-5 h-5" />
+                <span>Interview Chat</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsChatOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="flex flex-col flex-1 pt-2">
+              {/* Messages */}
+              <ScrollArea
+                className="px-4 flex flex-1 flex-col"
+                ref={chatScrollRef}
+              >
+                <div className="space-y-4 pb-3">
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex ${
+                        msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[80%] ${
+                          msg.sender === 'user' ? 'order-2' : 'order-1'
+                        }`}
+                      >
+                        <div
+                          className={`border rounded-lg px-3 py-2 text-sm ${
+                            msg.sender === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          {msg.text}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+              {/* Message Input */}
+              <div className="border-t p-3">
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Type your message..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="flex-1"
+                  />
+                  <Button onClick={sendMessage} size="sm">
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Controls */}
+      <div className="py-4 flex justify-center space-x-4">
+        <Button
+          variant={isCameraOn ? 'default' : 'secondary'}
+          size="icon"
+          onClick={() => setIsCameraOn(!isCameraOn)}
+          className="rounded-full"
+        >
+          {isCameraOn ? <Camera /> : <CameraOff />}
+        </Button>
+        <Button
+          variant={isMicOn ? 'default' : 'secondary'}
+          size="icon"
+          onClick={() => setIsMicOn(!isMicOn)}
+          className="rounded-full"
+        >
+          {isMicOn ? <Mic /> : <MicOff />}
+        </Button>
+        <Button
+          variant={isChatOpen ? 'default' : 'secondary'}
+          size="icon"
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="rounded-full"
+        >
+          <MessageSquare />
+        </Button>
+        <Button
+          size="icon"
+          variant="destructive"
+          onClick={exitInterview}
+          className="rounded-full"
+        >
+          <Phone />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default Interview;
