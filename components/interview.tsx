@@ -36,6 +36,36 @@ import {
 } from '@heygen/streaming-avatar';
 import LoadingSkeleton from './loading-skeleton';
 
+// Import mentors array
+const mentors = [
+  {
+    id: 'Bryan_IT_Sitting_public',
+    image: '/mentors/Bryan_IT_Sitting_public.webp',
+    name: 'Bryan',
+  },
+  {
+    id: 'Elenora_IT_Sitting_public',
+    image: '/mentors/Elenora_IT_Sitting_public.webp',
+    name: 'Elenora',
+  },
+  {
+    id: 'Judy_Teacher_Sitting_public',
+    image: '/mentors/Judy_Teacher_Sitting_public.webp',
+    name: 'Judy',
+  },
+  { id: 'June_HR_public', image: '/mentors/June_HR_public.webp', name: 'June' },
+  {
+    id: 'SilasHR_public',
+    image: '/mentors/SilasHR_public.webp',
+    name: 'Silas',
+  },
+  {
+    id: 'Wayne_20240711',
+    image: '/mentors/Wayne_20240711.webp',
+    name: 'Wayne',
+  },
+];
+
 async function fetchAccessToken() {
   try {
     const response = await fetch('/api/get-access-token', {
@@ -216,6 +246,16 @@ const Interview = ({
     }
   }, [mediaStream, stream]);
 
+  // Function to get mentor name by ID
+  const getMentorName = (id: string) => {
+    const mentor = mentors.find(
+      (mentor) => mentor.id === id || mentor.id.trim() === id.trim()
+    );
+    return mentor ? mentor.name : 'AI Interviewer';
+  };
+
+  const mentorName = getMentorName(mentorId);
+
   //
 
   const formatTime = (seconds: any) => {
@@ -309,6 +349,11 @@ const Interview = ({
           <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4 no-h-[calc(100vh-140px)]">
             {/* Interviewer Video */}
             <div className="relative overflow-hidden rounded-lg border">
+              <div className="absolute top-2 left-2 z-10 bg-black/50 backdrop-blur-sm rounded px-2 py-1">
+                <span className="text-white text-sm font-medium">
+                  {mentorName}
+                </span>
+              </div>
               <div className="relative h-full bg-muted">
                 {sessionState !== StreamingAvatarSessionState.INACTIVE ? (
                   <video
@@ -336,6 +381,9 @@ const Interview = ({
 
             {/* User Video */}
             <div className="relative overflow-hidden rounded-lg border">
+              <div className="absolute top-2 left-2 z-10 bg-black/50 backdrop-blur-sm rounded px-2 py-1">
+                <span className="text-white text-sm font-medium">You</span>
+              </div>
               <div className="relative h-full bg-muted">
                 {isCameraOn ? (
                   <video
