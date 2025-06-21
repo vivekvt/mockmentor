@@ -17,20 +17,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: appConfig.title,
   description: appConfig.description,
-  openGraph: {
-    title: `${appConfig.title}`,
-    description: appConfig.description,
-    images: appConfig.coverImage,
-    siteName: `${appConfig.title}`,
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    title: `${appConfig.title}`,
-    card: 'summary_large_image',
-    description: appConfig.description,
-    images: [appConfig.coverImage],
-  },
+  // openGraph: {
+  //   title: `${appConfig.title}`,
+  //   description: appConfig.description,
+  //   images: appConfig.coverImage,
+  //   siteName: `${appConfig.title}`,
+  //   locale: 'en_US',
+  //   type: 'website',
+  // },
+  // twitter: {
+  //   title: `${appConfig.title}`,
+  //   card: 'summary_large_image',
+  //   description: appConfig.description,
+  //   images: [appConfig.coverImage],
+  // },
 };
 
 export default function RootLayout({

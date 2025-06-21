@@ -19,8 +19,61 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
+import { useMemoizedFn, useUnmount } from 'ahooks';
+import {
+  StreamingAvatarSessionState,
+  useStreamingAvatarSession,
+  useVoiceChat,
+} from './logic';
+import {
+  AvatarQuality,
+  ElevenLabsModel,
+  StartAvatarRequest,
+  StreamingEvents,
+  STTProvider,
+  VoiceChatTransport,
+  VoiceEmotion,
+} from '@heygen/streaming-avatar';
+
+async function fetchAccessToken() {
+  try {
+    const response = await fetch('/api/get-access-token', {
+      method: 'POST',
+    });
+    const token = await response.text();
+
+    return token;
+  } catch (error) {
+    console.error('Error fetching access token:', error);
+    throw error;
+  }
+}
+
+const DEFAULT_CONFIG: StartAvatarRequest = {
+  quality: AvatarQuality.High,
+  avatarName: 'Ann_Therapist_public',
+  knowledgeId: undefined,
+  voice: {
+    rate: 1.5,
+    emotion: VoiceEmotion.EXCITED,
+    model: ElevenLabsModel.eleven_flash_v2_5,
+  },
+  language: 'en',
+  voiceChatTransport: VoiceChatTransport.WEBSOCKET,
+  sttSettings: {
+    provider: STTProvider.DEEPGRAM,
+  },
+};
 
 const Interview = () => {
+  const { initAvatar, startAvatar, stopAvatar, sessionState, stream } =
+    useStreamingAvatarSession();
+  const { startVoiceChat } = useVoiceChat();
+
+  const [config, setConfig] = useState<StartAvatarRequest>(DEFAULT_CONFIG);
+
+  const mediaStream = useRef<HTMLVideoElement>(null);
+
   const router = useRouter();
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
@@ -82,6 +135,67 @@ const Interview = () => {
     }
   }, [isCameraOn, isMicOn]);
 
+  const startSessionV2 = useMemoizedFn(async (isVoiceChat: boolean) => {
+    try {
+      const newToken = await fetchAccessToken();
+      const avatar = initAvatar(newToken);
+
+      avatar.on(StreamingEvents.AVATAR_START_TALKING, (e) => {
+        console.log('Avatar started talking', e);
+      });
+      avatar.on(StreamingEvents.AVATAR_STOP_TALKING, (e) => {
+        console.log('Avatar stopped talking', e);
+      });
+      avatar.on(StreamingEvents.STREAM_DISCONNECTED, () => {
+        console.log('Stream disconnected');
+      });
+      avatar.on(StreamingEvents.STREAM_READY, (event) => {
+        console.log('>>>>> Stream ready:', event.detail);
+      });
+      avatar.on(StreamingEvents.USER_START, (event) => {
+        console.log('>>>>> User started talking:', event);
+      });
+      avatar.on(StreamingEvents.USER_STOP, (event) => {
+        console.log('>>>>> User stopped talking:', event);
+      });
+      avatar.on(StreamingEvents.USER_END_MESSAGE, (event) => {
+        console.log('>>>>> User end message:', event);
+      });
+      avatar.on(StreamingEvents.USER_TALKING_MESSAGE, (event) => {
+        console.log('>>>>> User talking message:', event);
+      });
+      avatar.on(StreamingEvents.AVATAR_TALKING_MESSAGE, (event) => {
+        console.log('>>>>> Avatar talking message:', event);
+      });
+      avatar.on(StreamingEvents.AVATAR_END_MESSAGE, (event) => {
+        console.log('>>>>> Avatar end message:', event);
+      });
+
+      await startAvatar(config);
+
+      if (isVoiceChat) {
+        await startVoiceChat();
+      }
+    } catch (error) {
+      console.error('Error starting avatar session:', error);
+    }
+  });
+
+  useUnmount(() => {
+    stopAvatar();
+  });
+
+  useEffect(() => {
+    if (stream && mediaStream.current) {
+      mediaStream.current.srcObject = stream;
+      mediaStream.current.onloadedmetadata = () => {
+        mediaStream.current!.play();
+      };
+    }
+  }, [mediaStream, stream]);
+
+  //
+
   const formatTime = (seconds: any) => {
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -133,8 +247,9 @@ const Interview = () => {
     }
   };
 
-  const exitInterview = () => {
+  const exitInterview = async () => {
     if (window.confirm('Are you sure you want to exit the interview?')) {
+      await stopAvatar();
       router.push('/');
     }
   };
@@ -159,28 +274,35 @@ const Interview = () => {
       <div className="flex flex-1 max-w-7xl mx-auto">
         {/* Video Section */}
         <div
-          className={`flex-1 p- transition-all duration-300 ${
+          className={`flex-1 transition-all duration-300 ${
             isChatOpen ? 'lg:pr-2' : ''
           }`}
         >
           <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4 no-h-[calc(100vh-140px)]">
             {/* Interviewer Video */}
             <div className="relative overflow-hidden rounded-lg border">
-              <div className="bg-muted h-full flex items-center justify-center relative">
-                <div className="text-center">
-                  <Avatar className="w-16 h-16 mx-auto mb-4">
-                    <AvatarFallback className="text-lg">AI</AvatarFallback>
-                  </Avatar>
-                  <p className="text-muted-foreground">AI Interviewer</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Camera will be active soon
-                  </p>
-                </div>
-
-                {/* Interviewer Controls Overlay */}
-                <div className="absolute bottom-4 left-4">
-                  <Badge variant="secondary">AI Interviewer</Badge>
-                </div>
+              <div className="relative h-full bg-muted">
+                {sessionState !== StreamingAvatarSessionState.INACTIVE ? (
+                  <video
+                    playsInline
+                    ref={mediaStream}
+                    autoPlay
+                    className="w-full h-full object-cover"
+                  >
+                    <track kind="captions" />
+                  </video>
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <Avatar className="w-16 h-16 mx-auto mb-4">
+                        <AvatarFallback className="text-lg">AI</AvatarFallback>
+                      </Avatar>
+                      <p className="text-muted-foreground">
+                        AI Interviewer joining soon...
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -189,11 +311,14 @@ const Interview = () => {
               <div className="relative h-full bg-muted">
                 {isCameraOn ? (
                   <video
+                    playsInline
                     ref={videoRef}
                     autoPlay
                     muted
                     className="w-full h-full object-cover"
-                  />
+                  >
+                    <track kind="captions" />
+                  </video>
                 ) : (
                   <div className="h-full flex items-center justify-center">
                     <div className="text-center">
@@ -286,6 +411,13 @@ const Interview = () => {
       </div>
       {/* Controls */}
       <div className="py-4 flex justify-center space-x-4">
+        <Button
+          onClick={() => {
+            startSessionV2(true);
+          }}
+        >
+          Start
+        </Button>
         <Button
           variant={isCameraOn ? 'default' : 'secondary'}
           size="icon"
