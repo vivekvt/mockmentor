@@ -159,7 +159,7 @@ export default function InterviewPage() {
     }
   }, [interviewId, fetchInterview]);
 
-  if (loading) {
+  if (loading || true) {
     return <LoadingSkeleton />;
   }
 

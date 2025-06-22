@@ -208,7 +208,6 @@ export default function NewInterviewPage() {
     } catch (error) {
       console.error('Error creating interview:', error);
       alert('Failed to create interview');
-    } finally {
       setLoading(false);
     }
   };
