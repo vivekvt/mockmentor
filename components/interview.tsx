@@ -17,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useRouter } from 'next/navigation';
 import { Input } from './ui/input';
 import { useMemoizedFn, useUnmount } from 'ahooks';
 import {
@@ -47,6 +46,7 @@ import {
   AlertDialogTrigger,
 } from './ui/alert-dialog';
 import { mentors } from './mentors';
+import InterviewComplete from './interview-complete';
 
 async function fetchAccessToken() {
   try {
@@ -99,13 +99,13 @@ const Interview = ({
 
   const mediaStream = useRef<HTMLVideoElement>(null);
 
-  const router = useRouter();
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const [loading, setLoading] = useState(true);
   const [exitLoading, setExitLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isInterviewComplete, setIsInterviewComplete] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -316,8 +316,13 @@ const Interview = ({
     }
 
     await stopAvatar();
-    router.push('/');
+    setIsInterviewComplete(true);
   };
+
+  // Show InterviewComplete component if interview is complete
+  if (isInterviewComplete) {
+    return <InterviewComplete />;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col px-4">
