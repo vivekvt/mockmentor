@@ -2,7 +2,7 @@
 
 ### Built at [SpurHacks 2025](https://spurhacks.com/) by [Vivek Thakur](https://vivekthakur.dev)
 
-![MockMentor Cover](public/cover.png)
+![MockMentor Cover](public/mockmentor.gif)
 
 ## 🚀 What it does
 
