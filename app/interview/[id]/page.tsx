@@ -130,12 +130,12 @@ export default function InterviewPage() {
     }
 
     const startTime = new Date(interview.startDateTime).getTime();
-    const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const threeMinutes = 3 * 60 * 1000; // 3 minutes in milliseconds
 
     const updateTimer = () => {
       const now = Date.now();
       const elapsed = now - startTime;
-      const remaining = Math.max(0, fiveMinutes - elapsed);
+      const remaining = Math.max(0, threeMinutes - elapsed);
 
       // Auto-complete when time is up
       if (remaining === 0) {
@@ -159,7 +159,7 @@ export default function InterviewPage() {
     }
   }, [interviewId, fetchInterview]);
 
-  if (loading || true) {
+  if (loading) {
     return <LoadingSkeleton />;
   }
 
@@ -213,6 +213,6 @@ const getKnowledgeBase = (interview: Interview) => {
 
   The job role is described as follows: ${interview.jobSummary}.
 
-  Your task is to conduct a professional mock interview for this position. Ask 5 relevant, insightful questions to assess the candidate's technical skills, experience, and fit for the role. Tailor the questions to the candidate's background and the job's requirements. Ensure the questions are clear, concise, and encourage detailed responses about their expertise and problem-solving abilities. Maintain a professional and engaging tone throughout the interview.
+  Your task is to conduct a professional mock interview for this position. This is a 3-minute mock interview, so you should ask 2-3 concise but relevant questions to assess the candidate's technical skills, experience, and fit for the role. Tailor the questions to the candidate's background and the job's requirements. Ensure the questions are clear, concise, and encourage detailed responses about their expertise and problem-solving abilities. Maintain a professional and engaging tone throughout the interview. Keep track of time and make sure to provide valuable feedback within the 3-minute timeframe.
   `;
 };

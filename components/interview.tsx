@@ -123,17 +123,24 @@ const Interview = ({
 
   // Timer state
   const [startTime, setStartTime] = useState(new Date());
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(180); // 3 minutes in seconds
 
   const videoRef = useRef<any>(null);
   const chatScrollRef = useRef<any>(null);
 
-  // Timer effect
+  // Timer effect - countdown from 3 minutes
   useEffect(() => {
     const interval = setInterval(() => {
-      setElapsedTime(
-        Math.floor((new Date().getTime() - startTime.getTime()) / 1000)
+      const elapsed = Math.floor(
+        (new Date().getTime() - startTime.getTime()) / 1000
       );
+      const remaining = Math.max(0, 180 - elapsed); // 180 seconds = 3 minutes
+      setRemainingTime(remaining);
+
+      // Auto-exit when time is up
+      if (remaining === 0) {
+        exitInterview();
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -312,11 +319,11 @@ const Interview = ({
         </h1>
         {!loading && (
           <Badge
-            variant="secondary"
+            variant={remainingTime <= 30 ? 'destructive' : 'secondary'}
             className="flex items-center space-x-1 shrink-0"
           >
             <Clock className="w-3 h-3" />
-            <span>{formatTime(elapsedTime)}</span>
+            <span>{formatTime(remainingTime)}</span>
           </Badge>
         )}
       </div>
