@@ -224,6 +224,12 @@ const Interview = ({
   });
 
   useUnmount(() => {
+    // Stop all media tracks (camera/microphone)
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach((track: any) => track.stop());
+      videoRef.current.srcObject = null;
+    }
     stopAvatar();
   });
 
@@ -301,6 +307,14 @@ const Interview = ({
 
   const exitInterview = async () => {
     setExitLoading(true);
+
+    // Stop all media tracks (camera/microphone)
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach((track: any) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+
     await stopAvatar();
     router.push('/');
   };
