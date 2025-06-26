@@ -88,7 +88,7 @@ npm run dev
 
 ---
 
-**Ready to ace your next interview?** [Try MockMentor Now →](https://mockmentor.vercel.app)
+**Ready to ace your next interview?** [Try MockMentor Now →](https://mockmentor.co)
 
 **Connect with the creator:**
 
